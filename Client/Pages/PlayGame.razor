@@ -1,0 +1,19 @@
+﻿@page "/play"
+
+<h3>PlayGame</h3>
+
+
+
+
+@if (gameState != null)
+{
+	<h1>@selectedValue</h1>
+	@foreach (var player in gameState.Players)
+	{
+		<p>@player.Name</p>
+	}
+	@foreach (var card in playerCards)
+	{
+		<p>@card.Value</p>
+	}
+}

@@ -1,0 +1,33 @@
+﻿@page "/lobby"
+
+<h3>GameLobby</h3>
+
+<div class="lobby-container">
+    <div class="game-info">
+        <h2>Комната ожидания</h2>
+        <p class="game-description">
+            По очереди бросайте кости. Не выкиньте 1! Первый кто наберет 100 очков выиграет
+        </p>
+    </div>
+
+    <div class="player-list">
+        <h3>Игроки в комнате (@(players.Count)/5)</h3>
+        @foreach (var player in players)
+        {
+            <div class="player-item">
+                <span class="player-name">@player @(player == currentPlayer ? "(Ты)" : "")</span>
+            </div>
+        }
+    </div>
+
+    <div class="lobby-actions">
+        @if (players.Count >= 2 && players.Count <= 5)
+        {
+            <button class="game-button" @onclick="StartGame">Играть!</button>
+        }
+        else
+        {
+            <p class="waiting-message">Ждем игроков... (нужно 2-5 игроков)</p>
+        }
+    </div>
+</div>

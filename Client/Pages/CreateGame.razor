@@ -1,0 +1,52 @@
+﻿@page "/CreateGame"
+
+@inject IGameService GameService
+@inject NavigationManager NavigationManager
+
+<PageTitle>CreateGame</PageTitle>
+
+
+<div class="create-game">
+    <div class="form-container">
+        <h2>Создать игру</h2>
+        <div class="form-group">
+            <label for="gameId">ID игры</label>
+            <input id="gameId" class="form-control" type="text" placeholder="(например 13422)" @bind="GameName">
+        </div>
+        <div class="form-group">
+            <label for="username">Имя игрока</label>
+            <input id="username" class="form-control" type="text" placeholder="(например хрюша)" @bind="Username">
+        </div>
+        <button class="game-button" @onclick="Create" disabled="@(string.IsNullOrWhiteSpace(GameName) || string.IsNullOrWhiteSpace(Username))">
+            Создать игру
+        </button>
+    </div>
+</div>
+
+
+@code {
+
+    private string GameName { get; set; } = "";
+    private string Username { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GameService.ConnectToHub();
+    }
+
+    private async Task Create()
+    {
+        if (string.IsNullOrWhiteSpace(Username))
+        {
+            return;
+        }
+
+        bool result = await GameService.CreateGame(GameName, Username);
+
+        if (result)
+        {
+            // Use replace: true to prevent back navigation and add isCreator parameter
+            NavigationManager.NavigateTo($"/lobby?game={GameName}&player={Username}&isCreator=true", replace: true);
+        }
+    }
+}

@@ -1,0 +1,46 @@
+﻿@page "/JoinGame"
+@inject IGameService GameService
+@inject NavigationManager NavigationManager
+
+<h3>JoinGame</h3>
+
+
+<div class="join-game">
+    <div class="form-container">
+        <h2>Присоеденится к игре</h2>
+        <div class="form-group">
+            <label for="gameId">ID Игры</label>
+            <input id="gameId" class="form-control" type="text" placeholder="(например 12344)" @bind="GameId">
+        </div>
+        <div class="form-group">
+            <label for="username">Имя пользователя</label>
+            <input id="username" class="form-control" type="text" placeholder="(например Нюша)" @bind="Username">
+        </div>
+        <button class="game-button" @onclick="Join" disabled="@(string.IsNullOrWhiteSpace(GameId) || string.IsNullOrWhiteSpace(Username))">
+            Присоеденится
+        </button>
+    </div>
+</div>
+
+@code {
+    private string GameId { get; set; } = "";
+    private string Username { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GameService.ConnectToHub();
+    }
+
+    private async Task Join()
+    {
+        if (string.IsNullOrWhiteSpace(GameId) || string.IsNullOrWhiteSpace(Username))
+            return;
+
+        bool result = await GameService.JoinGame(GameId, Username);
+
+        if (result)
+        {
+            NavigationManager.NavigateTo($"/lobby?game={GameId}&player={Username}");
+        }
+    }
+}
