@@ -18,7 +18,20 @@ namespace Server.Hubs
             await Clients.Group(gameName).SendAsync("PlayerJoined", username);
         }
 
-        public async Task JoinGame(string game, string username)
+		public async Task DeleteGame(string game)
+		{
+			if (GameStates.ContainsKey(game))
+			{
+				GameStates.Remove(game);
+			}
+			if (GamePlayers.ContainsKey(game))
+			{
+				GamePlayers.Remove(game);
+			}
+			await Clients.Group(game).SendAsync("GameDeleted");
+		}
+
+		public async Task JoinGame(string game, string username)
         {
             if (!GamePlayers.ContainsKey(game))
             {
@@ -38,6 +51,8 @@ namespace Server.Hubs
                 await Clients.OthersInGroup(game).SendAsync("PlayerJoined", username);
             }
         }
+
+
 
         public Task<List<string>> GetPlayerNames(string game)
         {
@@ -88,6 +103,32 @@ namespace Server.Hubs
 			}
 			GameStates[game].StartGame();
 			return Task.FromResult(GameStates[game]);
+		}
+
+        public async Task<Game> MakeStep(string game, List<int> indexies)
+        {
+			if (!GameStates.ContainsKey(game))
+			{
+                return null;
+			}
+			GameStates[game].GiveCards(indexies);
+			await Clients.Group(game).SendAsync("GameStateUpdated", GameStates[game]);
+			return GameStates[game];
+		}  
+        
+        public async Task<Game> Lie(string game)
+        {
+			if (!GameStates.ContainsKey(game))
+			{
+                return null;
+			}
+            GameStates[game].Lie();
+			await Clients.Group(game).SendAsync("GameStateUpdated", GameStates[game]);
+            if (GameStates[game].IsEnded)
+            {
+				await Clients.Group(game).SendAsync("GameEnded", GameStates[game].Winner);
+			}
+			return GameStates[game];
 		}
 
     }

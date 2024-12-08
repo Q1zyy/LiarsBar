@@ -10,10 +10,38 @@
 	<h1>@selectedValue</h1>
 	@foreach (var player in gameState.Players)
 	{
-		<p>@player.Name</p>
+		<div>
+			@player.Name
+			@if (currentStepPlayer.Name.Equals(player.Name))
+			{
+				<span>--> hodit</span>
+			}
+		</div>
 	}
+	int cnt = 0;
 	@foreach (var card in playerCards)
 	{
-		<p>@card.Value</p>
+		<div>
+			@card.Value
+			@if (currentStepPlayer.Name.Equals(currentPlayer.Name))
+			{
+				int curr = cnt;
+				<input type="checkbox" @onchange="(e) => PickCard(e, curr)" name="@card.Value" data-value="@curr">
+			}
+		</div>
+		cnt++;
 	}
+
+	@if (currentStepPlayer.Name.Equals(currentPlayer.Name))
+	{
+		if (Steps > 0)
+		{
+			<button onclick="@Lie">LIE!</button>
+		}
+		<button onclick="@MakeStep">HOOOOOOOOOOOOOD</button>
+	}
+
 }
+
+
+<p>@Logs</p>

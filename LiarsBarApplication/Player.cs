@@ -23,7 +23,10 @@ namespace LiarsBarApplication
             foreach (int i in indexies)
             {
                 res.Add(Cards[i]);
-                Cards.Remove(Cards[i]);
+            }
+            foreach (var i in res)
+            {
+                Cards.Remove(i);
             }
             return res;
         }

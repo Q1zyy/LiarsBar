@@ -12,15 +12,25 @@ namespace Client.Services.GameService
         
         Task<bool> JoinGame(string game, string username);
 
-        Task<List<string>> GetPlayerNames(string game);
+		Task DeleteGame(string game);
 
-        IDisposable CreateConnection(string method, Action<string> handler);
+		Task<List<string>> GetPlayerNames(string game);
+
+		IDisposable CreateConnection(string method, Action handler);
+
+		IDisposable CreateConnection(string method, Action<string> handler);
+
+        IDisposable CreateConnection(string method, Action<Game> handler);
 
         Task<bool> StartGame(string game);
 
         Task<Game> GetGameState(string game);
         
         Task<Game> StartPlayingGame(string game);
+
+        Task<Game> MakeStep(string game, List<int> indexies);
+
+        Task<Game> Lie(string game);
 
 	}
 }

@@ -12,9 +12,18 @@ namespace LiarsBarApplication
         public List<Player> Players { get; set; } = new List<Player>();
         public List<Card> LastCards { get; set; } = new List<Card>();
         public int CurrentPlayer { get; set; } = 0;
+
+        public int Steps { get; set; } = 0;
+
         public CardValue SelectedValue { get; set; }
         public int ActivePlayers { get; set; }
         public bool IsStarted { get; set; } = false;
+
+        public bool IsEnded { get; set; } = false;
+
+        public string Winner { get; set; }
+
+        public string Logs { get; set; }
 
         // Конструктор без параметров
         public Game() { }
@@ -56,7 +65,15 @@ namespace LiarsBarApplication
             var arr = _allCards.ToArray();
             random.Shuffle(arr);
             _allCards = new List<Card>(arr);
-        }
+			for (int i = 0; i < Players.Count; i++)
+			{
+                Players[i].Cards = new List<Card>();
+				for (int j = i * 5; j < i * 5 + 5; j++)
+				{
+					Players[i].Cards.Add(_allCards[j]);
+				}
+			}
+		}
 
         public void StartGame()
         {
@@ -67,13 +84,13 @@ namespace LiarsBarApplication
                 byte cur = (byte)random.Next(1, 4);
                 SelectedValue = (CardValue)Enum.ToObject(typeof(CardValue), cur);
 
-                for (int i = 0; i < Players.Count; i++)
-                {
-                    for (int j = i * 5; j < i * 5 + 5; j++)
-                    {
-                        Players[i].Cards.Add(_allCards[j]);
-                    }
-                }
+                //for (int i = 0; i < Players.Count; i++)
+                //{
+                //    for (int j = i * 5; j < i * 5 + 5; j++)
+                //    {
+                //        Players[i].Cards.Add(_allCards[j]);
+                //    }
+                //}
             }
         }
 
@@ -99,6 +116,8 @@ namespace LiarsBarApplication
 
         public void GiveCards(List<int> indexes)
         {
+            Logs = $"Player {Players[CurrentPlayer].Name} put {indexes.Count} {SelectedValue}\n";
+            Steps++;
             LastCards = Players[CurrentPlayer].GiveCards(indexes);
             CurrentPlayer = NextPlayer();
         }
@@ -107,8 +126,11 @@ namespace LiarsBarApplication
         {
             int size = LastCards.Count;
             int cnt = 0;
+            Logs = "";
             foreach (var card in LastCards)
             {
+                Logs += card.Value.ToString();
+                Logs += " ";
                 if (card.Value == SelectedValue || card.Value == CardValue.JOKER)
                 {
                     cnt++;
@@ -116,14 +138,39 @@ namespace LiarsBarApplication
             }
             if (cnt == size)
             {
-                Players[CurrentPlayer].Shot();
+                bool p = Players[CurrentPlayer].Shot();
+                Logs += $"Player {Players[CurrentPlayer].Name} take gun.......";
+                Logs += (p ? "Killed yourself" : "Lucky bro");
             }
             else
             {
-                Players[PreviousPlayer()].Shot();
-            }
+                bool p = Players[PreviousPlayer()].Shot();
+				Logs += $"Player {Players[PreviousPlayer()].Name} take gun.......";
+				Logs += (p ? "Killed yourself" : "Lucky bro");
+			}
             ShuffleCards();
+            Steps = 0;
             CurrentPlayer = NextPlayer();
+            int alive = 0;
+            string name = "";
+            for (int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i].IsPlaying)
+                {
+                    alive++;
+                    name = Players[i].Name;
+                }
+            }
+            if (alive == 1)
+            {
+                IsEnded = true;
+                Winner = name;
+            }
+        }
+        public Player GetPlayerTurn()
+        {
+            return Players[CurrentPlayer];
         }
     }
+
 }

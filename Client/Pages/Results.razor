@@ -1,0 +1,48 @@
+﻿@page "/results"
+
+@inject NavigationManager NavigationManager
+@inject IGameService GameService
+
+<PageTitle>Game Results - Pig</PageTitle>
+
+<div class="results-container">
+    <div class="results-card">
+        <h2>Game Over!</h2>
+        <h3>Winner @Winner</h3>
+        <button class="game-button" @onclick="BackToHome">Сыгрвть еще</button>
+    </div>
+</div>
+
+@code
+{
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string? GameId { get; set; } = "";
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string? Winner { get; set; } = "";
+
+    protected async override Task OnInitializedAsync()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+
+        GameService.CreateConnection("End", () =>
+        {
+            NavigationManager.NavigateTo($"/");
+        });
+
+        await GameService.ConnectToHub();
+    }
+
+    private async Task toMenu()
+    {
+        await GameService.DeleteGame(GameId!);
+    }
+
+    private void BackToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

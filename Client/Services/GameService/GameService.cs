@@ -73,6 +73,15 @@ namespace Client.Services.GameService
         {
             return _connection.On(method, handler);
         }
+        
+        public IDisposable CreateConnection(string method, Action<Game> handler)
+        {
+            return _connection.On(method, handler);
+        }
+		public IDisposable CreateConnection(string method, Action handler)
+		{
+			return _connection.On(method, handler);
+		}
 
         public async Task<bool> StartGame(string game)
         {
@@ -113,5 +122,43 @@ namespace Client.Services.GameService
 			}
 		}
 
-    }
+		public async Task<Game> MakeStep(string game, List<int> indexies)
+		{
+			try
+			{
+				return await _connection.InvokeAsync<Game>("MakeStep", game, indexies);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				return null;
+			}
+		}
+
+		public async Task<Game> Lie(string game)
+		{
+			try
+			{
+				return await _connection.InvokeAsync<Game>("Lie", game);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				return null;
+			}
+		}
+
+
+		public async Task DeleteGame(string game)
+		{
+			try
+			{
+				await _connection.InvokeAsync("DeleteGame", game);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error deleting game: {ex.Message}");
+			}
+		}
+	}
 }
